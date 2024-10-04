@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+
 
 class NurseController extends AbstractController
 {
@@ -34,6 +36,26 @@ class NurseController extends AbstractController
         }
 
         // return el array creado pasado a formato json
+        return new JsonResponse($return_nurses);
+    }
+
+    #[Route('/nurse/name', name: 'app_nurse', methods: ['GET'])]
+    public function findByName(Request $request): JsonResponse
+    {
+
+        $return_nurses = array();
+
+        if (isset(self::$nurses)) {
+
+            $name = $request->get('name');
+
+            foreach (self::$nurses as $email => $data) {
+                if ($data['name'] == $name) {
+                    $return_nurses[$email] = array('name' => $data['name']);
+                }
+            }
+        }
+
         return new JsonResponse($return_nurses);
     }
     
