@@ -20,5 +20,21 @@ class NurseController extends AbstractController
         "jorge.morales@email.com" => array("name" => "Jorge Morales", "password" => "O1p2Q3r4S5"),
         "elena.garcia@email.com" => array("name" => "Elena García", "password" => "T6u7V8w9X0")
     );
+
+    #[Route('/nurse/index', name: 'Nurses List', methods:['GET'] )]
+    public function index(): JsonResponse
+    {
+        $return_nurses = array();
+        // Comprobar si hay info en el array de nurses
+        if (isset(self::$nurses)) {
+            // Recorrer el array para guardarlo en otro para solo mostrar nombre y email
+            foreach (self::$nurses as $email => $data) {
+                $return_nurses[$email] = array("name" => $data["name"]);
+            }
+        }
+
+        // return el array creado pasado a formato json
+        return new JsonResponse($return_nurses);
+    }
     
 }
