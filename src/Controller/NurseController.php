@@ -58,5 +58,20 @@ class NurseController extends AbstractController
 
         return new JsonResponse($return_nurses);
     }
+
+    #[Route('/nurse/login', name: 'login', methods: ['POST'])]
+    public function login(Request $request): JsonResponse
+    {
+        $email = $request->get('email');
+        $password = $request->get('password');
+        if ($email !== null && $password !== null) {
+            if (isset(self::$nurses[$email])) {
+                if (self::$nurses[$email]['password'] === $password) {
+                    return new JsonResponse(['success' => true]);
+                }
+            }
+        }
+        return new JsonResponse(['success' => false]);
+    }
     
 }
