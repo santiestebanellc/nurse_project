@@ -39,18 +39,16 @@ class NurseController extends AbstractController
         return new JsonResponse($return_nurses);
     }
 
-    #[Route('/name', name: 'app_nurse', methods: ['GET'])]
-    public function findByName(Request $request): JsonResponse
+    #[Route('/name/{str_name}', name: 'app_nurse', methods: ['GET'])]
+    public function findByName($str_name): JsonResponse
     {
 
         $return_nurses = array();
 
         if (isset(self::$nurses)) {
 
-            $name = $request->get('name');
-
             foreach (self::$nurses as $email => $data) {
-                if ($data['name'] == $name) {
+                if ($data['name'] == $str_name) {
                     $return_nurses[$email] = array('name' => $data['name']);
                 }
             }
