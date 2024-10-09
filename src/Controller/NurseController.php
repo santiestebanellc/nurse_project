@@ -5,9 +5,10 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/nurse', name: 'Nurse Methods')] 
+#[Route('/nurse', name: 'Nurse Methods')]
 class NurseController extends AbstractController
 {
     static $nurses = array(
@@ -23,7 +24,7 @@ class NurseController extends AbstractController
         "elena.garcia@email.com" => array("name" => "Elena García", "password" => "T6u7V8w9X0")
     );
 
-    #[Route('/index', name: 'Nurses List', methods:['GET'] )]
+    #[Route('/index', name: 'Nurses List', methods: ['GET'])]
     public function index(): JsonResponse
     {
         $return_nurses = array();
@@ -39,7 +40,7 @@ class NurseController extends AbstractController
         return new JsonResponse($return_nurses);
     }
 
-    #[Route('/name/{str_name}', name: 'app_nurse', methods: ['GET'])]
+    #[Route('/name/{str_name}', name: 'nurse_list_name', methods: ['GET'])]
     public function findByName($str_name): JsonResponse
     {
 
@@ -50,11 +51,14 @@ class NurseController extends AbstractController
             foreach (self::$nurses as $email => $data) {
                 if ($data['name'] == $str_name) {
                     $return_nurses[$email] = array('name' => $data['name']);
+                    break;
+                } else {
+                    return new JsonResponse($return_nurses, 404);
                 }
             }
         }
 
-        return new JsonResponse($return_nurses);
+        return new JsonResponse($return_nurses, 302);
     }
 
     #[Route('/login', name: 'login', methods: ['POST'])]
@@ -71,5 +75,4 @@ class NurseController extends AbstractController
         }
         return new JsonResponse(['success' => false]);
     }
-    
 }
