@@ -69,10 +69,10 @@ class NurseController extends AbstractController
         if ($email !== null && $password !== null) {
             if (isset(self::$nurses[$email])) {
                 if (self::$nurses[$email]['password'] === $password) {
-                    return new JsonResponse(['success' => true]);
+                    return new JsonResponse(['success' => true], 302);
                 }
             }
         }
-        return new JsonResponse(['success' => false]);
+        return new JsonResponse(['success' => false], 404);
     }
 }
