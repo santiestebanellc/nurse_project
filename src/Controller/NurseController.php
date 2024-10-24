@@ -14,26 +14,14 @@ use Doctrine\ORM\EntityManagerInterface;
 #[Route('/nurse', name: 'Nurse Methods')]
 class NurseController extends AbstractController
 {
-    static $nurses = array(
-        "juan.perez@email.com" => array("name" => "Juan Pérez", "password" => "a1B2c3D4e5"),
-        "maria.gomez@email.com" => array("name" => "María Gómez", "password" => "F6g7H8i9J0"),
-        "carlos.martinez@email.com" => array("name" => "Carlos Martínez", "password" => "k1L2m3N4o5"),
-        "ana.lopez@email.com" => array("name" => "Ana López", "password" => "P6q7R8s9T0"),
-        "luis.fernandez@email.com" => array("name" => "Luis Fernández", "password" => "U1v2W3x4Y5"),
-        "sara.ramirez@email.com" => array("name" => "Sara Ramírez", "password" => "Z6a7B8c9D0"),
-        "diego.rodriguez@email.com" => array("name" => "Diego Rodríguez", "password" => "E1f2G3h4I5"),
-        "laura.sanchez@email.com" => array("name" => "Laura Sánchez", "password" => "J6k7L8m9N0"),
-        "jorge.morales@email.com" => array("name" => "Jorge Morales", "password" => "O1p2Q3r4S5"),
-        "elena.garcia@email.com" => array("name" => "Elena García", "password" => "T6u7V8w9X0")
-    );
 
     #[Route('/index', name: 'Nurses List', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): JsonResponse
     {
-        $nurses= $entityManager->getRepository(Nurse::class)->findAll();
+        $nurses = $entityManager->getRepository(Nurse::class)->findAll();
 
         $return_nurses = array();
-        
+
         if (isset(self::$nurses)) {
             foreach ($nurses as $nurse) {
                 $return_nurses[] = [
@@ -50,22 +38,26 @@ class NurseController extends AbstractController
     }
 
     #[Route('/name/{str_name}', name: 'nurse_list_name', methods: ['GET'])]
-    public function findByName($str_name): JsonResponse
+    public function findByName(NurseRepository $nurseRepository, $str_name): JsonResponse
     {
-        $return_nurses = array();
+        $nurses = $nurseRepository->findBy(['name' => $str_name]);
+
+        $return_nurses = [];
+
         if (isset(self::$nurses)) {
-
-            foreach (self::$nurses as $email => $data) {
-                if ($data['name'] == $str_name) {
-                    $return_nurses[$email] = array('name' => $data['name']);
-                    break;
-                } else {
-                    return new JsonResponse($return_nurses, 404);
-                }
+            foreach ($nurses as $nurse) {
+                $return_nurses[] = [
+                    'id' => $nurse->getId(),
+                    'name' => $nurse->getName(),
+                    'first_surname' => $nurse->getFirstSurname(),
+                    'second_surname' => $nurse->getSecondSurname(),
+                    'email' => $nurse->getEmail(),
+                ];
             }
-        }
 
-        return new JsonResponse($return_nurses, 302);
+            return new JsonResponse($return_nurses, 302);
+        }
+        return new JsonResponse($return_nurses, 404);
     }
 
     #[Route('/login', name: 'login', methods: ['POST'])]
