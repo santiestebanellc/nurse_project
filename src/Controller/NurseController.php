@@ -22,7 +22,7 @@ class NurseController extends AbstractController
 
         $return_nurses = array();
 
-        if (isset(self::$nurses)) {
+        if (!empty($nurses)) {
             foreach ($nurses as $nurse) {
                 $return_nurses[] = [
                     'id' => $nurse->getId(),
