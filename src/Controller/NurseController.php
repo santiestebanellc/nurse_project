@@ -30,10 +30,10 @@ class NurseController extends AbstractController
     #[Route('/index', name: 'Nurses List', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): JsonResponse
     {
-        $nurses= $entityManager->getRepository(Nurse::class)->findAll();
+        $nurses = $entityManager->getRepository(Nurse::class)->findAll();
 
         $return_nurses = array();
-        
+
         if (isset(self::$nurses)) {
             foreach ($nurses as $nurse) {
                 $return_nurses[] = [
@@ -50,22 +50,26 @@ class NurseController extends AbstractController
     }
 
     #[Route('/name/{str_name}', name: 'nurse_list_name', methods: ['GET'])]
-    public function findByName($str_name): JsonResponse
+    public function findByName(NurseRepository $nurseRepository, $str_name): JsonResponse
     {
-        $return_nurses = array();
+        $nurses = $nurseRepository->findBy(['name' => $str_name]);
+
+        $return_nurses =array();
+
         if (isset(self::$nurses)) {
-
-            foreach (self::$nurses as $email => $data) {
-                if ($data['name'] == $str_name) {
-                    $return_nurses[$email] = array('name' => $data['name']);
-                    break;
-                } else {
-                    return new JsonResponse($return_nurses, 404);
-                }
+            foreach ($nurses as $nurse) {
+                $return_nurses[] = [
+                    'id' => $nurse->getId(),
+                    'name' => $nurse->getName(),
+                    'first_surname' => $nurse->getFirstSurname(),
+                    'second_surname' => $nurse->getSecondSurname(),
+                    'email' => $nurse->getEmail(),
+                ];
             }
-        }
 
-        return new JsonResponse($return_nurses, 302);
+            return new JsonResponse($return_nurses, 302);
+        }
+        return new JsonResponse($return_nurses, 404);
     }
 
     #[Route('/login', name: 'login', methods: ['POST'])]
