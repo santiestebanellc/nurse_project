@@ -7,6 +7,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\Nurse;
+use App\Repository\NurseRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[Route('/nurse', name: 'Nurse Methods')]
 class NurseController extends AbstractController
@@ -28,24 +31,18 @@ class NurseController extends AbstractController
     public function index(): JsonResponse
     {
         $return_nurses = array();
-        // Comprobar si hay info en el array de nurses
         if (isset(self::$nurses)) {
-            // Recorrer el array para guardarlo en otro para solo mostrar nombre y email
             foreach (self::$nurses as $email => $data) {
                 $return_nurses[$email] = array("name" => $data["name"]);
             }
         }
-
-        // return el array creado pasado a formato json
         return new JsonResponse($return_nurses);
     }
 
     #[Route('/name/{str_name}', name: 'nurse_list_name', methods: ['GET'])]
     public function findByName($str_name): JsonResponse
     {
-
         $return_nurses = array();
-
         if (isset(self::$nurses)) {
 
             foreach (self::$nurses as $email => $data) {
@@ -62,13 +59,14 @@ class NurseController extends AbstractController
     }
 
     #[Route('/login', name: 'login', methods: ['POST'])]
-    public function login(Request $request): JsonResponse
+    public function login(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
         $email = $request->get('email');
         $password = $request->get('password');
         if ($email !== null && $password !== null) {
-            if (isset(self::$nurses[$email])) {
-                if (self::$nurses[$email]['password'] === $password) {
+            $nurse = $nurseRepository->findOneBy(['email' => $email]);
+            if ($nurse) {
+                if ($nurse->getPassword() === $password) {
                     return new JsonResponse(['success' => true], 302);
                 }
             }
