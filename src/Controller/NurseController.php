@@ -28,14 +28,24 @@ class NurseController extends AbstractController
     );
 
     #[Route('/index', name: 'Nurses List', methods: ['GET'])]
-    public function index(): JsonResponse
+    public function index(EntityManagerInterface $entityManager): JsonResponse
     {
+        $nurses= $entityManager->getRepository(Nurse::class)->findAll();
+
         $return_nurses = array();
+        
         if (isset(self::$nurses)) {
-            foreach (self::$nurses as $email => $data) {
-                $return_nurses[$email] = array("name" => $data["name"]);
+            foreach ($nurses as $nurse) {
+                $return_nurses[] = [
+                    'id' => $nurse->getId(),
+                    'name' => $nurse->getName(),
+                    'first_surname' => $nurse->getFirstSurname(),
+                    'second_surname' => $nurse->getSecondSurname(),
+                    'email' => $nurse->getEmail(),
+                ];
             }
         }
+
         return new JsonResponse($return_nurses);
     }
 
