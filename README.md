@@ -1,4 +1,4 @@
-# Medical data management proyect
+# Medical data management project
 
 One Paragraph of the project description
 
@@ -53,10 +53,6 @@ Explain what these tests test and why
 
   - **Santi Estebanell** - *What the member of the team has done, or it's position within the team* -
     [santiestebanellc](https://github.com/santiestebanellc)
-
-See also the list of
-[contributors](https://github.com/PurpleBooth/a-good-readme-template/contributors)
-who participated in this project.
 
 ## Acknowledgments
 
