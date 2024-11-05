@@ -40,6 +40,10 @@ Explain what these tests test and why
 
     Give an example
 
+## Deployment
+
+Add additional notes to deploy this on a live system
+
 ## Authors
 
   - **Akisha Angeles** - *What the member of the team has done, or it's position within the team* -
