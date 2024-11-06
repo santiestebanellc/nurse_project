@@ -75,4 +75,21 @@ class NurseController extends AbstractController
         }
         return new JsonResponse(['success' => false], 404);
     }
+
+    #[Route('/delete/{id}', name: 'delete', methods: ['DELETE'])]
+    public function delete(NurseRepository $nurseRepository, $id): JsonResponse
+    {
+        $nurse = $nurseRepository->findOneBy(['id' => $id]);
+
+        
+
+        return new JsonResponse(404);
+
+        // if ($this->isCsrfTokenValid('delete'.$nurse->getId(), $request->getPayload()->getString('_token'))) {
+        //     $entityManager->remove($nurse);
+        //     $entityManager->flush();
+        // }
+
+        // return $this->redirectToRoute('app_nurse_twig_index', [], Response::HTTP_SEE_OTHER);
+    }
 }
