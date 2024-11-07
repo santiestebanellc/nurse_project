@@ -76,20 +76,19 @@ class NurseController extends AbstractController
         return new JsonResponse(['success' => false], 404);
     }
 
-    #[Route('/delete/{id}', name: 'delete', methods: ['DELETE'])]
-    public function delete(NurseRepository $nurseRepository, $id): JsonResponse
+    #[Route('/delete/{id}', name: 'delete_nurse', methods: ['DELETE'])]
+    public function delete(NurseRepository $nurseRepository, EntityManagerInterface $entityManager, $id): JsonResponse
     {
-        $nurse = $nurseRepository->findOneBy(['id' => $id]);
+        $nurse = $nurseRepository->find($id);
 
-        
+        if (!empty($nurse)) {
 
-        return new JsonResponse(404);
+            $entityManager->remove($nurse);
+            $entityManager->flush();
 
-        // if ($this->isCsrfTokenValid('delete'.$nurse->getId(), $request->getPayload()->getString('_token'))) {
-        //     $entityManager->remove($nurse);
-        //     $entityManager->flush();
-        // }
+            return new JsonResponse(['success' => true], 200);
+        }
 
-        // return $this->redirectToRoute('app_nurse_twig_index', [], Response::HTTP_SEE_OTHER);
+        return new JsonResponse(['success' => false], 404);
     }
 }
