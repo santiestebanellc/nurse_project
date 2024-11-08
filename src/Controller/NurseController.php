@@ -94,25 +94,24 @@ class NurseController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()], 500);
         }
     }
-    #[Route('/search_by_id', name: 'app_search_by_id', methods: ['GET'])]
-    public function searchNursesById(Request $request, EntityManagerInterface $entityManager): JsonResponse
+
+    #[Route('/id/{str_id}', name: 'nurse_id', methods: ['GET'])]
+    public function findById(EntityManagerInterface $entityManager, NurseRepository $nurseRepository, string $str_id): JsonResponse
     {
-        $nurseId = $request->query->get('id');
-        
-        if (!$nurseId) {
-            return new JsonResponse(['error' => 'No ID provided'], 400); 
-        }
-
-        $nurseFound = $entityManager->getRepository(Nurse::class)->find($nurseId);
-
-        if ($nurseFound) {
-            $nurseData = [
-                "name" => $nurseFound->getName(),
-                "surname" => $nurseFound->getFirstSurname() . ' ' . $nurseFound->getSecondSurname(),
+        $nurse = $nurseRepository->find($str_id);
+    
+        if (!empty($nurse)) {
+            $return_nurse = [
+                'id' => $nurse->getId(),
+                'name' => $nurse->getName(),
+                'first_surname' => $nurse->getFirstSurname(),
+                'second_surname' => $nurse->getSecondSurname(),
+                'email' => $nurse->getEmail(),
             ];
-            return new JsonResponse($nurseData, 200);
+            return new JsonResponse($return_nurse, 200); 
         }
-
-        return new JsonResponse(['error' => 'Nurse not found'], 404); 
+    
+        return new JsonResponse(['error' => 'Nurse not found'], 404);
     }
+    
 }
