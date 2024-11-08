@@ -33,9 +33,9 @@ class NurseController extends AbstractController
                     'email' => $nurse->getEmail(),
                 ];
             }
+            return new JsonResponse($return_nurses, 200);
         }
-
-        return new JsonResponse($return_nurses);
+        return new JsonResponse($return_nurses, 404);
     }
 
     #[Route('/name/{str_name}', name: 'nurse_list_name', methods: ['GET'])]
@@ -56,7 +56,7 @@ class NurseController extends AbstractController
                 ];
             }
 
-            return new JsonResponse($return_nurses, 302);
+            return new JsonResponse($return_nurses, 200);
         }
         return new JsonResponse($return_nurses, 404);
     }
@@ -70,7 +70,7 @@ class NurseController extends AbstractController
             $nurse = $nurseRepository->findOneBy(['email' => $email]);
             if ($nurse) {
                 if ($nurse->getPassword() === $password) {
-                    return new JsonResponse(['success' => true], 302);
+                    return new JsonResponse(['success' => true], 200);
                 }
             }
         }
