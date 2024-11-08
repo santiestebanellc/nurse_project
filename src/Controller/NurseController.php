@@ -12,11 +12,11 @@ use App\Repository\NurseRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Exception as DBALException;
 
-#[Route('/nurse', name: 'Nurse Methods')]
+#[Route('/nurse', name: 'nurse_main')]
 class NurseController extends AbstractController
 {
 
-    #[Route('/index', name: 'Nurses List', methods: ['GET'])]
+    #[Route('/index', name: 'nurse_list_all', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): JsonResponse
     {
         $nurses = $entityManager->getRepository(Nurse::class)->findAll();
@@ -61,7 +61,7 @@ class NurseController extends AbstractController
         return new JsonResponse($return_nurses, 404);
     }
 
-    #[Route('/login', name: 'login', methods: ['POST'])]
+    #[Route('/login', name: 'nurse_login', methods: ['POST'])]
     public function login(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
         $email = $request->get('email');
@@ -77,7 +77,7 @@ class NurseController extends AbstractController
         return new JsonResponse(['success' => false], 404);
     }
 
-    #[Route('/delete/{id}', name: 'delete_nurse', methods: ['DELETE'])]
+    #[Route('/delete/{id}', name: 'nurse_delete', methods: ['DELETE'])]
     public function delete(NurseRepository $nurseRepository, EntityManagerInterface $entityManager, $id): JsonResponse
     {
         try {
