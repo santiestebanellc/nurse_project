@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Nurse;
 use App\Repository\NurseRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\DBAL\Exception as DBALException;
 
 #[Route('/nurse', name: 'Nurse Methods')]
 class NurseController extends AbstractController
@@ -79,16 +80,18 @@ class NurseController extends AbstractController
     #[Route('/delete/{id}', name: 'delete_nurse', methods: ['DELETE'])]
     public function delete(NurseRepository $nurseRepository, EntityManagerInterface $entityManager, $id): JsonResponse
     {
-        $nurse = $nurseRepository->find($id);
-
-        if (!empty($nurse)) {
-
-            $entityManager->remove($nurse);
-            $entityManager->flush();
-
-            return new JsonResponse(['success' => true], 200);
+        try {
+            $nurse = $nurseRepository->find($id);
+            if (!empty($nurse)) {
+                $entityManager->remove($nurse);
+                $entityManager->flush();
+                return new JsonResponse(['success' => true], 200);
+            }
+            return new JsonResponse(['success' => false], 404);
+        } catch (DBALException $e) {
+            return new JsonResponse(['success' => false, 'message' => 'Database error: ' . $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            return new JsonResponse(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()], 500);
         }
-
-        return new JsonResponse(['success' => false], 404);
     }
 }
