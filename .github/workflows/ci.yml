@@ -19,6 +19,7 @@ jobs:
         image: mysql:5.7
         env:
           MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_database
         options: --health-cmd "mysqladmin ping --silent" --health-interval 10s --health-timeout 5s --health-retries 3
 
     steps:
@@ -32,9 +33,20 @@ jobs:
           extensions: mbstring, intl, pdo_mysql
 
       - name: Install dependencies
-        run: composer install 
+        run: composer install
+
+      - name: Wait for MySQL to be ready
+        run: |
+          until mysql -h127.0.0.1 -uroot -proot -e "SELECT 1"; do
+            echo "Waiting for MySQL..."
+            sleep 3
+          done
+
+      - name: Set up environment for tests
+        run: |
+          cp .env.test .env
+          # Si tienes variables de entorno específicas, asegúrate de configurarlas correctamente
+          echo "DATABASE_URL="mysql://sql7740449:8KpMy7sQSq@sql7.freemysqlhosting.net:3306/sql7740449?serverVersion=5.5.62-MariaDB&charset=utf8mb4"" >> .env
 
       - name: Run tests
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: php bin/phpunit
+        run: php vendor/bin/phpunit --configuration phpunit.xml
