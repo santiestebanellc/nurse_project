@@ -1,58 +1,42 @@
-name: CI/CD Pipeline
+name: CI Workflow
 
 on:
   push:
     branches:
-      - development
-      - master
-  pull_request:
-    branches:
-      - development
-      - master
+      - main
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_database
-        options: >-
-          --health-cmd "mysqladmin ping --silent"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 3
-        ports:
-          - 3306:3306
-
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: mbstring, intl, pdo_mysql
+          php-version: '8.1'
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+        run: |
+          composer install
 
-      - name: Cache Symfony binary
-        uses: actions/cache@v3
-        with:
-          path: .symfony/bin
-          key: ${{ runner.os }}-symfony-${{ hashFiles('**/composer.lock') }}
+      - name: Test MySQL connection
+        run: |
+          mysql -h sql7.freemysqlhosting.net -u sql7740449 -p8KpMy7sQSq -e 'SHOW DATABASES;'
+
+      - name: Wait for MySQL to be ready
+        run: |
+          until mysql -h sql7.freemysqlhosting.net -u sql7740449 -p8KpMy7sQSq -e 'SELECT 1'; do
+            echo "Waiting for MySQL to be ready..."
+            sleep 5
+          done
 
       - name: Run migrations
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}  
-        run: php bin/console doctrine:migrations:migrate --no-interaction
+        run: |
+          php bin/console doctrine:migrations:migrate --no-interaction
 
       - name: Run tests
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}  
-        run: php bin/phpunit
+        run: |
+          php bin/phpunit
