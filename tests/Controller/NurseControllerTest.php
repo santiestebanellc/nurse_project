@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -9,73 +8,101 @@ class NurseControllerTest extends WebTestCase
     public function testIndex()
     {
         $client = static::createClient();
+
         $client->request('GET', '/nurse/index');
 
-        // Verifica que la respuesta sea exitosa
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-
-        // Verifica que el contenido de la respuesta sea JSON
+        $this->assertResponseStatusCodeSame(200);
         $this->assertJson($client->getResponse()->getContent());
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $this->assertIsArray($data);
     }
 
-    public function testFindByName()
+    public function testFindByNameSuccess()
     {
         $client = static::createClient();
+
         $client->request('GET', '/nurse/name/John');
 
-        // Verifica que la respuesta sea exitosa
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-
-        // Verifica que el contenido de la respuesta sea JSON
+        $this->assertResponseStatusCodeSame(200);
         $this->assertJson($client->getResponse()->getContent());
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $this->assertIsArray($data);
+        $this->assertNotEmpty($data); 
+    }
+
+    public function testFindByNameNotFound()
+    {
+        $client = static::createClient();
+
+        $client->request('GET', '/nurse/name/NonExistingName');
+
+        $this->assertResponseStatusCodeSame(404);
     }
 
     public function testLoginSuccess()
     {
         $client = static::createClient();
+
         $client->request('POST', '/nurse/login', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'email' => 'test@example.com',
             'password' => 'password123'
         ]));
 
-        // Verifica que el código de respuesta sea 200 (login exitoso)
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertJson($client->getResponse()->getContent());
-        $this->assertStringContainsString('"success":true', $client->getResponse()->getContent());
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonStringEqualsJsonString('{"success":true}', $client->getResponse()->getContent());
     }
 
     public function testLoginFailure()
     {
         $client = static::createClient();
+
         $client->request('POST', '/nurse/login', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'email' => 'wrong@example.com',
             'password' => 'wrongpassword'
         ]));
 
-        // Verifica que el código de respuesta sea 404 (login fallido)
-        $this->assertEquals(404, $client->getResponse()->getStatusCode());
-        $this->assertJson($client->getResponse()->getContent());
-        $this->assertStringContainsString('"success":false', $client->getResponse()->getContent());
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertJsonStringEqualsJsonString('{"success":false}', $client->getResponse()->getContent());
     }
 
-    public function testDeleteNurse()
+    public function testDeleteSuccess()
     {
         $client = static::createClient();
+
         $client->request('DELETE', '/nurse/delete/1');
 
-        // Verifica que el código de respuesta sea 200
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertJson($client->getResponse()->getContent());
-        $this->assertStringContainsString('"success":true', $client->getResponse()->getContent());
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonStringEqualsJsonString('{"success":true}', $client->getResponse()->getContent());
     }
 
-    public function testFindById()
+    public function testDeleteNotFound()
     {
         $client = static::createClient();
+
+        $client->request('DELETE', '/nurse/delete/9999');
+
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertJsonStringEqualsJsonString('{"success":false}', $client->getResponse()->getContent());
+    }
+
+    public function testFindByIdSuccess()
+    {
+        $client = static::createClient();
+
         $client->request('GET', '/nurse/id/1');
 
-        // Verifica que el código de respuesta sea 200
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertResponseStatusCodeSame(200);
         $this->assertJson($client->getResponse()->getContent());
     }
+
+    public function testFindByIdNotFound()
+    {
+        $client = static::createClient();
+
+        $client->request('GET', '/nurse/id/9999');
+
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertJsonStringEqualsJsonString('{"error":"Nurse not found"}', $client->getResponse()->getContent());
+    }
 }
+?>
