@@ -1,42 +1,53 @@
-name: CI Workflow
+name: Symfony CI
 
 on:
   push:
     branches:
       - main
+      - development  
+  pull_request:
+    branches:
+      - main
+      - development  
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: sql7740449
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: 8.1
 
       - name: Install dependencies
         run: |
-          composer install
+          composer install --no-interaction --prefer-dist
 
-      - name: Test MySQL connection
+      - name: Configure the database
         run: |
-          mysql -h sql7.freemysqlhosting.net -u sql7740449 -p8KpMy7sQSq -e 'SHOW DATABASES;'
-
-      - name: Wait for MySQL to be ready
-        run: |
-          until mysql -h sql7.freemysqlhosting.net -u sql7740449 -p8KpMy7sQSq -e 'SELECT 1'; do
-            echo "Waiting for MySQL to be ready..."
-            sleep 5
-          done
-
-      - name: Run migrations
-        run: |
+          cp .env.test .env
+          # Configurar la base de datos con las variables de entorno necesarias para pruebas
+          php bin/console doctrine:database:create --if-not-exists
           php bin/console doctrine:migrations:migrate --no-interaction
 
-      - name: Run tests
+      - name: Run PHPUnit tests
         run: |
-          php bin/phpunit
+          vendor/bin/phpunit --configuration phpunit.xml.dist
