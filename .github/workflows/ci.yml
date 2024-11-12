@@ -32,19 +32,9 @@ jobs:
           extensions: mbstring, intl, pdo_mysql
 
       - name: Install dependencies
-        run: composer install
-
-      - name: Verify vendor/bin/phpunit exists
-        run: ls -l vendor/bin/phpunit
-
-      - name: Wait for MySQL to be ready
-        run: |
-          until mysql -h127.0.0.1 -uroot -proot -e "SELECT 1"; do
-            echo "Waiting for MySQL..."
-            sleep 3
-          done
+        run: composer install 
 
       - name: Run tests
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: php vendor/bin/phpunit
+        run: php bin/phpunit
