@@ -3,6 +3,7 @@ namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+
 class NurseControllerTest extends WebTestCase
 {
     public function testIndex()
@@ -60,6 +61,26 @@ class NurseControllerTest extends WebTestCase
             'email' => 'wrong@example.com',
             'password' => 'wrongpassword'
         ]));
+
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertJsonStringEqualsJsonString('{"success":false}', $client->getResponse()->getContent());
+    }
+
+    public function testDeleteSuccess()
+    {
+        $client = static::createClient();
+
+        $client->request('DELETE', '/nurse/1');
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonStringEqualsJsonString('{"success":true}', $client->getResponse()->getContent());
+    }
+
+    public function testDeleteNotFound()
+    {
+        $client = static::createClient();
+
+        $client->request('DELETE', '/nurse/9999');
 
         $this->assertResponseStatusCodeSame(404);
         $this->assertJsonStringEqualsJsonString('{"success":false}', $client->getResponse()->getContent());
