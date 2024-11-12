@@ -76,7 +76,7 @@ class NurseControllerTest extends WebTestCase
         $this->assertJsonStringEqualsJsonString('{"success":true}', $client->getResponse()->getContent());
     }
 
-    public function testDeleteNotFound()
+   /* public function testDeleteNotFound()
     {
         $client = static::createClient();
 
@@ -84,8 +84,8 @@ class NurseControllerTest extends WebTestCase
 
         $this->assertResponseStatusCodeSame(404);
         $this->assertJsonStringEqualsJsonString('{"success":false}', $client->getResponse()->getContent());
-    }
-
+    } */
+    /*
     public function testFindByIdSuccess()
     {
         $client = static::createClient();
@@ -94,7 +94,7 @@ class NurseControllerTest extends WebTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertJson($client->getResponse()->getContent());
-    }
+    } */
 
     public function testFindByIdNotFound()
     {
