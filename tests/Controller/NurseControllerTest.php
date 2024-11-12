@@ -70,7 +70,7 @@ class NurseControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client->request('DELETE', '/nurse/delete/1');
+        $client->request('DELETE', '/nurse/1');
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonStringEqualsJsonString('{"success":true}', $client->getResponse()->getContent());
@@ -80,7 +80,7 @@ class NurseControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client->request('DELETE', '/nurse/delete/9999');
+        $client->request('DELETE', '/nurse/9999');
 
         $this->assertResponseStatusCodeSame(404);
         $this->assertJsonStringEqualsJsonString('{"success":false}', $client->getResponse()->getContent());
