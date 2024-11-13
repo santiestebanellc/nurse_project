@@ -3,8 +3,8 @@ doctrine:
         url: '%env(resolve:DATABASE_URL)%'
         profiling: '%kernel.debug%'
         use_savepoints: true
-        driver: 'pdo_mysql'  # Añadido para MySQL, puedes cambiarlo si usas otro tipo de base de datos
-        server_version: '5.7'  # Ajusta esto a la versión de tu servidor MySQL
+        driver: 'pdo_mysql'  
+        server_version: '5.7'  
         charset: UTF8
     orm:
         auto_generate_proxy_classes: true
