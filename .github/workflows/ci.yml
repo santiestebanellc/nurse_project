@@ -36,5 +36,5 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: "DATABASE_URL="mysql://sql7740449:8KpMy7sQSq@sql7.freemysqlhosting.net:3306/sql7740449?serverVersion=5.5.62-MariaDB&charset=utf8mb4"
         run: php bin/phpunit
