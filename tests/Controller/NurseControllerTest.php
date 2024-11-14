@@ -19,18 +19,18 @@ class NurseControllerTest extends WebTestCase
     }
   
     
-    /* public function testFindByNameSuccess()
+    public function testFindByNameSuccess()
     {
         $client = static::createClient();
 
-        $client->request('GET', '/nurse/name/John');
+        $client->request('GET', '/nurse/name/Ana');
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertJson($client->getResponse()->getContent());
         $data = json_decode($client->getResponse()->getContent(), true);
         $this->assertIsArray($data);
         $this->assertNotEmpty($data); 
-    } */
+    } 
 
     public function testFindByNameNotFound()
     {
@@ -41,19 +41,21 @@ class NurseControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-/*    public function testLoginSuccess()
+    public function testLoginSuccess()
     {
         $client = static::createClient();
-
+    
         $client->request('POST', '/nurse/login', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
-            'email' => 'test@example.com',
-            'password' => 'password123'
+            'email' => 'ana.lopez@email.com',
+            'password' => 'P6q7R8s9T0'
         ]));
-
+    
+        dump($client->getResponse()->getContent());
+    
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonStringEqualsJsonString('{"success":true}', $client->getResponse()->getContent());
-    } */
-
+    }
+    
     public function testLoginFailure()
     {
         $client = static::createClient();
@@ -67,35 +69,35 @@ class NurseControllerTest extends WebTestCase
         $this->assertJsonStringEqualsJsonString('{"success":false}', $client->getResponse()->getContent());
     }
 
-    /* public function testDeleteSuccess()
+    public function testDeleteSuccess()
     {
         $client = static::createClient();
 
-        $client->request('DELETE', '/nurse/1');
+        $client->request('DELETE', '/nurse/7000');
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonStringEqualsJsonString('{"success":true}', $client->getResponse()->getContent());
-    } */
+    } 
 
     public function testDeleteNotFound()
     {
         $client = static::createClient();
 
-        $client->request('DELETE', '/nurse/9999');
+        $client->request('DELETE', '/nurse/12121');
 
         $this->assertResponseStatusCodeSame(404);
         $this->assertJsonStringEqualsJsonString('{"success":false}', $client->getResponse()->getContent());
     }
-/*
+
     public function testFindByIdSuccess()
     {
         $client = static::createClient();
 
-        $client->request('GET', '/nurse/id/1');
+        $client->request('GET', '/nurse/id/2');
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertJson($client->getResponse()->getContent());
-    } */
+    } 
 
     public function testFindByIdNotFound()
     {
