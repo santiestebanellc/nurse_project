@@ -96,6 +96,50 @@ class NurseController extends AbstractController
         return new JsonResponse(['success' => false], 404);
     }
 
+    #[Route('/', name: 'nurse_create', methods: ['POST'])]
+    public function createNurse(Request $request, NurseRepository $nurseRepository, EntityManagerInterface $entityManagerInterface): JsonResponse
+    {
+        $data = $request->toArray();
+        $email = $data['email']??null;
+        
+        if ($email === null) {
+            return new JsonResponse(['success' => false], 400);
+        }
+
+        $nurse = $nurseRepository->findOneBy(['email'=> $email]);
+        if ($nurse !== null) {
+            return new JsonResponse(['error' => 'A nurse with this email already exists'], 409);
+        }
+
+        $name =$data['name'];
+        $firstSurname = $data['firstSurname'];
+        $secondSurname = $data['secondSurname'];
+        $password = $data['password'];
+
+        // VALIDAR
+        if (
+        (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) ||
+        (!is_string($name) || $name === null) ||
+        (!is_string($firstSurname) || $firstSurname === null) ||
+        (!is_string($secondSurname) || $secondSurname === null) ||
+        (!is_string($password) || $password === null)
+        ){
+            return new JsonResponse(['error' => 'Invalid data type provided'], 404);
+        }
+
+        $newNurse = new Nurse();
+        $newNurse->setEmail($email);
+        $newNurse->setName($name);
+        $newNurse->setFirstSurname($firstSurname);
+        $newNurse->setSecondSurname($secondSurname);
+        $newNurse->setPassword($password);
+
+        $entityManagerInterface->persist($newNurse);
+        $entityManagerInterface->flush();
+        
+        return new JsonResponse(['success' => true], 201);
+    }
+
     #[Route('/{id}', name: 'nurse_delete', methods: ['DELETE'])]
     public function delete(NurseRepository $nurseRepository, EntityManagerInterface $entityManager, $id): JsonResponse
     {
