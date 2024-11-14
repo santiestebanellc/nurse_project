@@ -3,11 +3,11 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - main
+      - master
       - development
   pull_request:
     branches:
-      - main
+      - master
       - development
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.2.12'
           extensions: mbstring, intl
 
       - name: Install dependencies
