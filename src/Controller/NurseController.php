@@ -136,8 +136,9 @@ class NurseController extends AbstractController
 
         $entityManagerInterface->persist($newNurse);
         $entityManagerInterface->flush();
+        $nurseId = $newNurse->getId();
         
-        return new JsonResponse(['success' => true], 201);
+        return new JsonResponse(['success' => true, 'nurse_id' => $nurseId], 201);
     }
 
     #[Route('/{id}', name: 'nurse_delete', methods: ['DELETE'])]
@@ -204,7 +205,4 @@ class NurseController extends AbstractController
         return new JsonResponse(['success' => true, 'message' => 'Nurse updated successfully'], 200);
     }
 
-
-
-    
 }
