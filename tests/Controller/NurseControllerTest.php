@@ -46,16 +46,17 @@ class NurseControllerTest extends WebTestCase
         $client = static::createClient();
     
         $client->request('POST', '/nurse/login', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
-            'email' => 'ana.lopez@email.com',
-            'password' => 'P6q7R8s9T0'
+            'email' => 'luis.fernandez@email.com',
+            'password' => 'U1v2W3x4Y5'
         ]));
-    
+        
         dump($client->getResponse()->getContent());
     
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonStringEqualsJsonString('{"success":true}', $client->getResponse()->getContent());
     }
     
+
     public function testLoginFailure()
     {
         $client = static::createClient();
@@ -69,16 +70,16 @@ class NurseControllerTest extends WebTestCase
         $this->assertJsonStringEqualsJsonString('{"success":false}', $client->getResponse()->getContent());
     }
 
-    public function testDeleteSuccess()
+     public function testDeleteSuccess()
     {
         $client = static::createClient();
-
+ 
         $client->request('DELETE', '/nurse/7000');
-
+ 
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonStringEqualsJsonString('{"success":true}', $client->getResponse()->getContent());
     } 
-
+ 
     public function testDeleteNotFound()
     {
         $client = static::createClient();
