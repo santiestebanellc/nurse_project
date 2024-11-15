@@ -1,65 +1,104 @@
 # Medical data management project
 
-One Paragraph of the project description
+## Description
+
+The purpose of this project is to create an app for the students of nursing vocational training, so they can use it while practising in class. 
+
+The app has to fulfil all the next functionalities:
+
+Nurses Management:
+- LogIn
+- SignIn
+- Modify
+- Delete
+
+Patients Management:
+- Create a new patient profile
+- Modify patient profile data
+- Incorporation of Patient Data
 
 
-## Getting Started
+## Key Features
 
-These instructions will give you a copy of the project up and running on
-your local machine for development and testing purposes.
+- **Authentication and Authorization**: Implementation of a login system with role-based access control.
+- **Entity Management**: Utilizes Doctrine ORM for data modeling and database interactions.
+- **Unit Testing**: PHPUnit setup for ensuring code quality.
+- **Modular Architecture**: Component-based structure for scalability and maintainability.
 
 ### Prerequisites
 
-Requirements for the software and other tools to build, test and push 
-- [Example 1](https://www.example.com)
-- [Example 2](https://www.example.com)
+Before setting up the project, ensure you have the following installed:
+
+- PHP >= 8.1
+- Composer
+- Symfony CLI (optional but recommended)
+- Web server (Apache or Nginx)
+- Database (MySQL or PostgreSQL)
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development
-environment running
+Follow these steps to set up the project locally:
 
-Say what the step will be
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/santiestebanellc/nurse_project.git
 
-    Give the example
+2. Navigate to the project directory:
+   ```bash
+   cd nurse_project
 
-And repeat
+3. Install dependencies:
+   ```bash
+   composer install
 
-    until finished
+4. Comment the current ``` DATABASE_URL=mysql ``` on the .env file and update the necessary values:
+   ```bash
+   DATABASE_URL=mysql://username:password@127.0.0.1:3306/database_name
 
-End with an example of getting some data out of the system or using it
-for a little demo
+5. Run migrations to set up the database schema:
+   ```bash
+   php bin/console doctrine:migrations:migrate
+
+6. Start the development server:
+   ```bash
+   symfony serve
+   ```
+
+   or
+   
+    ```bash
+   symfony server:start
+    
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
+You can run test in two ways:
 
-### Sample Tests
+- Via terminal:
+You have to write in the terminal ```./name_of_the_tests_directory ```
 
-Explain what these tests test and why
 
-    Give an example
+- Via VSCode interface:
 
-## Deployment
+First you have to go to the test section.
 
-Add additional notes to deploy this on a live system
+<img width="59" alt="Captura de pantalla 2024-11-15 a las 18 46 17" src="https://github.com/user-attachments/assets/d64dc246-93ed-426c-8dab-8a4afdfff201">
+
+Then you can choose to run all the tests at once, or to run each test individually.
+
+<img width="287" alt="Captura de pantalla 2024-11-15 a las 18 47 30" src="https://github.com/user-attachments/assets/80badcf5-5d35-453b-a86f-ee571b746369">
+
 
 ## Authors
 
-  - **Akisha Angeles** - *What the member of the team has done, or it's position within the team* -
+  - **Akisha Angeles** -
     [akishajae](https://github.com/akishajae)
 
-  - **Arnau Colominas** - *What the member of the team has done, or it's position within the team* -
+  - **Arnau Colominas** -
     [ColoSans1](https://github.com/ColoSans1)
 
-  - **Mònica Fernàndez** - *What the member of the team has done, or it's position within the team* -
+  - **Mònica Fernàndez** -
     [Jinninni040507](https://github.com/Jinninni040507)
 
-  - **Santi Estebanell** - *What the member of the team has done, or it's position within the team* -
+  - **Santi Estebanell** - *Project Manager* -
     [santiestebanellc](https://github.com/santiestebanellc)
-
-## Acknowledgments
-
-  - Hat tip to anyone whose code is used
-  - Inspiration
-  - etc
