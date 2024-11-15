@@ -68,7 +68,6 @@ Follow these steps to set up the project locally:
    
     ```bash
    symfony server:start
-    
 
 ## Running the tests
 
@@ -78,7 +77,6 @@ You can run test in two ways:
 
     ```bash
    $ ./vendor/bin/phpunit ./tests
-
 
 - Via VSCode interface:
 
