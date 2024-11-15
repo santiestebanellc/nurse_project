@@ -75,7 +75,9 @@ Follow these steps to set up the project locally:
 You can run test in two ways:
 
 - Via terminal:
-You have to write in the terminal ```./name_of_the_tests_directory ```
+
+    ```bash
+   $ ./vendor/bin/phpunit ./tests
 
 
 - Via VSCode interface:
