@@ -177,7 +177,7 @@ class NurseController extends AbstractController
         if (($name !== null && !is_string($name)) ||
         ($firstSurname !== null && !is_string($firstSurname)) ||
         ($secondSurname !== null && !is_string($secondSurname)) ||
-        ($email !== null && (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL))) || // Cambiado aquí
+        ($email !== null && (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL))) ||
         ($password !== null && !is_string($password))) {
         return new JsonResponse(['error' => 'Invalid data type provided'], 404);
         }
