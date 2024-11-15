@@ -116,7 +116,6 @@ class NurseController extends AbstractController
         $secondSurname = $data['secondSurname'];
         $password = $data['password'];
 
-        // VALIDAR
         if (
         (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) ||
         (!is_string($name) || $name === null) ||
