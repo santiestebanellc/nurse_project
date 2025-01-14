@@ -177,6 +177,27 @@ class NurseController extends AbstractController
         return new JsonResponse(['success' => true, 'nurse_id' => $nurseId], 201);
     }
 
+    #[Route('/index', name: 'nurse_list_all', methods: ['GET'])]
+    public function index(EntityManagerInterface $entityManager): JsonResponse
+    {
+        $nurses = $entityManager->getRepository(Nurse::class)->findAll();
+
+        $result = array_map(function (Nurse $nurse) {
+            return [
+                'id' => $nurse->getId(),
+                'name' => $nurse->getName(),
+                'first_surname' => $nurse->getFirstSurname(),
+                'second_surname' => $nurse->getSecondSurname(),
+                'email' => $nurse->getEmail(),
+                'password' => $nurse->getPassword(),
+                'image' => $nurse->getImage()
+            ];
+        }, $nurses);
+
+        return new JsonResponse($result, empty($nurses) ? Response::HTTP_NOT_FOUND : Response::HTTP_OK);
+    }
+    
+
 
     private function getImageData($image): ?string
     {
