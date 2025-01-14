@@ -6,78 +6,105 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Nurse;
 use App\Repository\NurseRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\DBAL\Exception as DBALException;
 
 #[Route('/nurse', name: 'nurse_main')]
 class NurseController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
 
-    #[Route('/index', name: 'nurse_list_all', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): JsonResponse
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $nurses = $entityManager->getRepository(Nurse::class)->findAll();
-
-        $return_nurses = array();
-
-        if (!empty($nurses)) {
-            foreach ($nurses as $nurse) {
-                $return_nurses[] = [
-                    'id' => $nurse->getId(),
-                    'name' => $nurse->getName(),
-                    'first_surname' => $nurse->getFirstSurname(),
-                    'second_surname' => $nurse->getSecondSurname(),
-                    'email' => $nurse->getEmail(),
-                ];
-            }
-            return new JsonResponse($return_nurses, 200);
-        }
-        return new JsonResponse($return_nurses, 404);
+        $this->entityManager = $entityManager;
     }
 
-    #[Route('/name/{str_name}', name: 'nurse_list_name', methods: ['GET'])]
-    public function findByName(NurseRepository $nurseRepository, $str_name): JsonResponse
+    #[Route('/delete/{id}', name: 'nurse_delete', methods: ['DELETE'])]
+    public function delete(int $id): JsonResponse
     {
-        $nurses = $nurseRepository->findBy(['name' => $str_name]);
+        $nurse = $this->entityManager->getRepository(Nurse::class)->find($id);
 
-        $return_nurses = [];
-
-        if (!empty($nurses)) {
-            foreach ($nurses as $nurse) {
-                $return_nurses[] = [
-                    'id' => $nurse->getId(),
-                    'name' => $nurse->getName(),
-                    'first_surname' => $nurse->getFirstSurname(),
-                    'second_surname' => $nurse->getSecondSurname(),
-                    'email' => $nurse->getEmail(),
-                ];
-            }
-
-            return new JsonResponse($return_nurses, 200);
+        if (!$nurse) {
+            return new JsonResponse(['message' => 'Nurse not found'], Response::HTTP_NOT_FOUND);
         }
-        return new JsonResponse($return_nurses, 404);
+
+        $this->entityManager->remove($nurse);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'Nurse deleted successfully'], Response::HTTP_OK);
     }
 
-    #[Route('/id/{str_id}', name: 'nurse_id', methods: ['GET'])]
-    public function findById(EntityManagerInterface $entityManager, NurseRepository $nurseRepository, string $str_id): JsonResponse
+    #[Route('/find/{field}/{value}', name: 'nurse_find_by_field', methods: ['GET'])]
+    public function findByField(string $field, string $value, NurseRepository $nurseRepository): JsonResponse
     {
-        $nurse = $nurseRepository->find($str_id);
-    
-        if (!empty($nurse)) {
-            $return_nurse = [
+        $criteria = [$field => $value];
+        $nurses = $nurseRepository->findBy($criteria);
+
+        if (empty($nurses)) {
+            return new JsonResponse([], Response::HTTP_NOT_FOUND);
+        }
+
+        $result = array_map(function (Nurse $nurse) {
+            return [
                 'id' => $nurse->getId(),
                 'name' => $nurse->getName(),
                 'first_surname' => $nurse->getFirstSurname(),
                 'second_surname' => $nurse->getSecondSurname(),
                 'email' => $nurse->getEmail(),
+                'image' => $this->getImageData($nurse->getImage())
             ];
-            return new JsonResponse($return_nurse, 200); 
+        }, $nurses);
+
+        return new JsonResponse($result, Response::HTTP_OK);
+    }
+
+    #[Route('/edit', name: 'nurse_edit', methods: ['PUT'])]
+    public function edit(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['id'])) {
+            return new JsonResponse(['message' => 'ID is required'], Response::HTTP_BAD_REQUEST);
         }
-    
-        return new JsonResponse(['error' => 'Nurse not found'], 404);
+
+        $nurse = $this->entityManager->getRepository(Nurse::class)->find($data['id']);
+
+        if (!$nurse) {
+            return new JsonResponse(['message' => 'Nurse not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        if (isset($data['name'])) $nurse->setName($data['name']);
+        if (isset($data['first_surname'])) $nurse->setFirstSurname($data['first_surname']);
+        if (isset($data['second_surname'])) $nurse->setSecondSurname($data['second_surname']);
+        if (isset($data['email'])) $nurse->setEmail($data['email']);
+        if (isset($data['password'])) $nurse->setPassword($data['password']);
+        if (isset($data['image'])) $nurse->setImage(base64_decode($data['image']));
+
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'Nurse updated successfully'], Response::HTTP_OK);
+    }
+
+    #[Route('/show/{id}', name: 'nurse_show', methods: ['GET'])]
+    public function show(int $id): JsonResponse
+    {
+        $nurse = $this->entityManager->getRepository(Nurse::class)->find($id);
+
+        if (!$nurse) {
+            return new JsonResponse(['message' => 'Nurse not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse([
+            'id' => $nurse->getId(),
+            'name' => $nurse->getName(),
+            'first_surname' => $nurse->getFirstSurname(),
+            'second_surname' => $nurse->getSecondSurname(),
+            'email' => $nurse->getEmail(),
+            'password' => $nurse->getPassword(),
+            'image' => $nurse->getImage()
+        ], Response::HTTP_OK);
     }
 
     #[Route('/login', name: 'nurse_login', methods: ['POST'])]
@@ -85,45 +112,50 @@ class NurseController extends AbstractController
     {
         $email = $request->get('email');
         $password = $request->get('password');
+    
         if ($email !== null && $password !== null) {
             $nurse = $nurseRepository->findOneBy(['email' => $email]);
-            if ($nurse) {
-                if ($nurse->getPassword() === $password) {
-                    return new JsonResponse(['success' => true], 200);
-                }
+    
+            if ($nurse && $nurse->getPassword() === $password) {
+                return new JsonResponse([
+                    'success' => true,
+                    'id' => $nurse->getId()
+                ], 200);
             }
         }
+    
         return new JsonResponse(['success' => false], 404);
     }
-
+    
     #[Route('/', name: 'nurse_create', methods: ['POST'])]
-    public function createNurse(Request $request, NurseRepository $nurseRepository, EntityManagerInterface $entityManagerInterface): JsonResponse
+    public function createNurse(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
-        $data = $request->toArray();
-        $email = $data['email']??null;
+        $data = json_decode($request->getContent(), true);
+        $email = $data['email'] ?? null;
         
         if ($email === null) {
-            return new JsonResponse(['success' => false], 400);
+            return new JsonResponse(['success' => false, 'error' => 'Email is required'], 400);
         }
 
-        $nurse = $nurseRepository->findOneBy(['email'=> $email]);
+        $nurse = $nurseRepository->findOneBy(['email' => $email]);
         if ($nurse !== null) {
-            return new JsonResponse(['error' => 'A nurse with this email already exists'], 409);
+            return new JsonResponse(['success' => false, 'error' => 'A nurse with this email already exists'], 409);
         }
 
-        $name =$data['name'];
-        $firstSurname = $data['firstSurname'];
-        $secondSurname = $data['secondSurname'];
-        $password = $data['password'];
+        $name = $data['name'] ?? null;
+        $firstSurname = $data['first_surname'] ?? null;
+        $secondSurname = $data['second_surname'] ?? null;
+        $password = $data['password'] ?? null;
+        $image = $data['image'] ?? null;
 
         if (
-        (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) ||
-        (!is_string($name) || $name === null) ||
-        (!is_string($firstSurname) || $firstSurname === null) ||
-        (!is_string($secondSurname) || $secondSurname === null) ||
-        (!is_string($password) || $password === null)
-        ){
-            return new JsonResponse(['error' => 'Invalid data type provided'], 404);
+            (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) ||
+            (!is_string($name) || $name === null) ||
+            (!is_string($firstSurname) || $firstSurname === null) ||
+            (!is_string($secondSurname) || $secondSurname === null) ||
+            (!is_string($password) || $password === null)
+        ) {
+            return new JsonResponse(['success' => false, 'error' => 'Invalid data type provided'], 400);
         }
 
         $newNurse = new Nurse();
@@ -133,75 +165,27 @@ class NurseController extends AbstractController
         $newNurse->setSecondSurname($secondSurname);
         $newNurse->setPassword($password);
 
-        $entityManagerInterface->persist($newNurse);
-        $entityManagerInterface->flush();
+        if ($image !== null && is_string($image)) {
+            $newNurse->setImage(base64_decode($image));
+        }
+
+        $this->entityManager->persist($newNurse);
+        $this->entityManager->flush();
+        
         $nurseId = $newNurse->getId();
         
         return new JsonResponse(['success' => true, 'nurse_id' => $nurseId], 201);
     }
 
-    #[Route('/{id}', name: 'nurse_delete', methods: ['DELETE'])]
-    public function delete(NurseRepository $nurseRepository, EntityManagerInterface $entityManager, $id): JsonResponse
+
+    private function getImageData($image): ?string
     {
-        try {
-            $nurse = $nurseRepository->find($id);
-            if (!empty($nurse)) {
-                $entityManager->remove($nurse);
-                $entityManager->flush();
-                return new JsonResponse(['success' => true], 200);
-            }
-            return new JsonResponse(['success' => false], 404);
-        } catch (DBALException $e) {
-            return new JsonResponse(['success' => false, 'message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (\Exception $e) {
-            return new JsonResponse(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()], 500);
+        if (is_resource($image)) {
+            return base64_encode(stream_get_contents($image));
+        } elseif (is_string($image)) {
+            return base64_encode($image);
         }
+
+        return null;
     }
-
-    #[Route('/{id}', name: 'nurse_update', methods: ['PUT'])]
-    public function updateNurseById(Request $request, NurseRepository $nurseRepository, EntityManagerInterface $entityManager, int $id): JsonResponse
-    {
-        $nurse = $nurseRepository->find($id);
-        if (!$nurse) {
-            return new JsonResponse(['error' => 'Nurse not found'], 404);
-        }
-
-        $data = $request->toArray();
-        
-        $name = $data['name'] ?? null;
-        $firstSurname = $data['first_surname'] ?? null;
-        $secondSurname = $data['second_surname'] ?? null;
-        $email = $data['email'] ?? null;
-        $password = $data['password'] ?? null;
-
-        if (($name !== null && !is_string($name)) ||
-        ($firstSurname !== null && !is_string($firstSurname)) ||
-        ($secondSurname !== null && !is_string($secondSurname)) ||
-        ($email !== null && (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL))) ||
-        ($password !== null && !is_string($password))) {
-        return new JsonResponse(['error' => 'Invalid data type provided'], 404);
-        }
-
-
-        if ($name !== null) {
-            $nurse->setName($name);
-        }
-        if ($firstSurname !== null) {
-            $nurse->setFirstSurname($firstSurname);
-        }
-        if ($secondSurname !== null) {
-            $nurse->setSecondSurname($secondSurname);
-        }
-        if ($email !== null) {
-            $nurse->setEmail($email);
-        }
-        if ($password !== null) {
-            $nurse->setPassword($password);
-        }
-
-        $entityManager->flush();
-
-        return new JsonResponse(['success' => true, 'message' => 'Nurse updated successfully'], 200);
-    }
-
 }

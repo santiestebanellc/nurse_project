@@ -102,16 +102,18 @@ class Nurse
 
         return $this;
     }
-    public function getImage(): ?string
-    {
-        return $this->image ? stream_get_contents($this->image) : null;
-    }
-
     public function setImage(?string $image): static
     {
         $this->image = $image;
-
         return $this;
+    }
+    
+    public function getImage(): ?string
+    {
+        if ($this->image !== null) {
+            return base64_encode(is_resource($this->image) ? stream_get_contents($this->image) : $this->image);
+        }
+        return null;
     }
 
 }
