@@ -28,6 +28,9 @@ class Nurse
     #[ORM\Column(length: 45, nullable: true)]
     private ?string $password = null;
 
+    #[ORM\Column(type: 'blob', nullable: true)]
+    private $image;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -99,4 +102,16 @@ class Nurse
 
         return $this;
     }
+    public function getImage(): ?string
+    {
+        return $this->image ? stream_get_contents($this->image) : null;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
 }
