@@ -127,7 +127,7 @@ class NurseController extends AbstractController
         return new JsonResponse(['success' => false], 404);
     }
     
-    #[Route('/', name: 'nurse_create', methods: ['POST'])]
+    #[Route('/register', name: 'nurse_create', methods: ['POST'])]
     public function createNurse(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
