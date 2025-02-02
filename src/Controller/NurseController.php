@@ -53,7 +53,7 @@ class NurseController extends AbstractController
                 'first_surname' => $nurse->getFirstSurname(),
                 'second_surname' => $nurse->getSecondSurname(),
                 'email' => $nurse->getEmail(),
-                'image' => $this->getImageData($nurse->getImage())
+                'image' => $nurse->getImage()
             ];
         }, $nurses);
 
@@ -112,10 +112,10 @@ class NurseController extends AbstractController
     {
         $email = $request->get('email');
         $password = $request->get('password');
-    
+
         if ($email !== null && $password !== null) {
             $nurse = $nurseRepository->findOneBy(['email' => $email]);
-    
+
             if ($nurse && $nurse->getPassword() === $password) {
                 return new JsonResponse([
                     'success' => true,
@@ -123,16 +123,16 @@ class NurseController extends AbstractController
                 ], 200);
             }
         }
-    
+
         return new JsonResponse(['success' => false], 404);
     }
-    
+
     #[Route('/register', name: 'nurse_create', methods: ['POST'])]
     public function createNurse(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $email = $data['email'] ?? null;
-        
+
         if ($email === null) {
             return new JsonResponse(['success' => false, 'error' => 'Email is required'], 400);
         }
@@ -171,9 +171,9 @@ class NurseController extends AbstractController
 
         $this->entityManager->persist($newNurse);
         $this->entityManager->flush();
-        
+
         $nurseId = $newNurse->getId();
-        
+
         return new JsonResponse(['success' => true, 'nurse_id' => $nurseId], 201);
     }
 
@@ -195,18 +195,5 @@ class NurseController extends AbstractController
         }, $nurses);
 
         return new JsonResponse($result, empty($nurses) ? Response::HTTP_NOT_FOUND : Response::HTTP_OK);
-    }
-    
-
-
-    private function getImageData($image): ?string
-    {
-        if (is_resource($image)) {
-            return base64_encode(stream_get_contents($image));
-        } elseif (is_string($image)) {
-            return base64_encode($image);
-        }
-
-        return null;
     }
 }
